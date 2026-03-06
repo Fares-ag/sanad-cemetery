@@ -1,0 +1,60 @@
+name: sanad_cemetery
+description: Sanad Cemetery - Search, navigate to graves, digital memorials, QR codes, and maintenance requests.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+  # Routing & state
+  go_router: ^13.2.0
+  provider: ^6.1.1
+  # Search (fuzzy + backend-ready)
+  fuzzy: ^0.5.1
+  # Map & GPS
+  flutter_map: ^6.1.0
+  latlong2: ^0.9.0
+  geolocator: ^11.0.0
+  flutter_map_geojson: ^1.0.8
+  # Compass & sensors
+  flutter_compass: ^0.8.1
+  sensors_plus: ^4.0.2
+  # QR
+  mobile_scanner: ^5.0.0
+  qr_flutter: ^4.1.0
+  app_links: ^6.3.2
+  # Media & profile
+  cached_network_image: ^3.3.1
+  video_player: ^2.8.2
+  flutter_html: ^3.0.0-beta.2
+  image_picker: ^1.0.7
+  # Maintenance & notifications
+  flutter_local_notifications: ^17.0.0
+  # Utils
+  uuid: ^4.2.2
+  intl: ^0.20.2
+  path_provider: ^2.1.2
+  shared_preferences: ^2.2.2
+  http: ^1.2.0
+  url_launcher: ^6.2.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/
+    - assets/geojson/
+    - images/Welcome.png
+    - images/MunicipalityLogo.png
+    - images/home-img.png
+    - images/grave-img.png
