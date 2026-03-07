@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -27,6 +28,7 @@ import 'welcome_state.dart';
 
 void mainApp() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('ar');
   final searchService = SearchService();
   await searchService.setRecords(_demoRecords());
   final maintenanceService = MaintenanceService();

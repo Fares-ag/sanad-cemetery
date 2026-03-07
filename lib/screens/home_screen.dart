@@ -8,6 +8,7 @@ import '../providers/locale_provider.dart';
 import '../providers/emergency_provider.dart';
 import '../services/emergency_storage.dart';
 import '../theme/app_theme.dart';
+import '../utils/date_format.dart';
 
 /// Home per Figma 165:21551 — exact layout, spacing, and typography.
 class HomeScreen extends StatelessWidget {
@@ -188,8 +189,8 @@ class HomeScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 _AnnouncementPreviewTile(
                   name: 'Ahmed Khan',
-                  date: AppStrings.tr(context, 'passedAwayOn', '20th September, 2026'),
-                  service: AppStrings.tr(context, 'memorialServiceOn', '22nd September at 4 PM'),
+                  date: AppStrings.tr(context, 'passedAwayOn', formatDeathDate(context, DateTime(2026, 9, 20))),
+                  service: AppStrings.tr(context, 'memorialServiceOn', formatServiceDateTime(context, DateTime(2026, 9, 22, 16, 0))),
                 ),
                 const SizedBox(height: 25),
                 Padding(

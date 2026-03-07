@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../l10n/app_strings.dart';
 import '../theme/app_theme.dart';
+import '../utils/date_format.dart';
 
 /// Announcements screen per Figma (166:22209).
 /// Recent Announcements list + Add New Announcement form.
@@ -13,9 +14,9 @@ class AnnouncementsScreen extends StatefulWidget {
 }
 
 class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
-  final List<Map<String, String>> _recent = [
-    {'name': 'Ahmed Khan', 'dateArg': '25th September, 2026', 'serviceKey': 'funeralOn', 'serviceArg': '28th September at 2 PM'},
-    {'name': 'Mirza Khan', 'dateArg': '20th September, 2026', 'serviceKey': 'memorialServiceOn', 'serviceArg': '22nd September at 4 PM'},
+  final List<Map<String, dynamic>> _recent = [
+    {'name': 'Ahmed Khan', 'date': DateTime(2026, 9, 25), 'serviceKey': 'funeralOn', 'serviceDateTime': DateTime(2026, 9, 28, 14, 0)},
+    {'name': 'Mirza Khan', 'date': DateTime(2026, 9, 20), 'serviceKey': 'memorialServiceOn', 'serviceDateTime': DateTime(2026, 9, 22, 16, 0)},
   ];
   final _newNameController = TextEditingController();
 
@@ -55,10 +56,10 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
             ),
             const SizedBox(height: 16),
             ..._recent.map((a) => _AnnouncementTile(
-              name: a['name']!,
-              date: AppStrings.tr(context, 'passedAwayOn', a['dateArg']!),
-              service: AppStrings.tr(context, a['serviceKey']!, a['serviceArg']!),
-              icon: a['name']!.startsWith('Ahmed') ? AppIcons.celebration : AppIcons.flower,
+              name: a['name'] as String,
+              date: AppStrings.tr(context, 'passedAwayOn', formatDeathDate(context, a['date'] as DateTime)),
+              service: AppStrings.tr(context, a['serviceKey'] as String, formatServiceDateTime(context, a['serviceDateTime'] as DateTime)),
+              icon: (a['name'] as String).startsWith('Ahmed') ? AppIcons.celebration : AppIcons.flower,
             )),
             const SizedBox(height: 24),
             Text(

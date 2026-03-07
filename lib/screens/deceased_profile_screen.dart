@@ -9,10 +9,12 @@ import 'package:uuid/uuid.dart';
 import '../models/deceased.dart';
 import '../services/search_service.dart';
 import '../theme/app_theme.dart';
+import '../utils/date_format.dart';
 
-String _monthName(int month) {
-  const m = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  return m[month - 1];
+/// Formats section/plot for display (locale-aware numbers, letters unchanged).
+String _formatGraveLocation(BuildContext context, String value) {
+  final n = int.tryParse(value);
+  return n != null ? formatNumber(context, n) : value;
 }
 
 /// Deceased profile — aligned to home page: white background, maroon accent, same typography & cards.
@@ -47,8 +49,8 @@ class DeceasedProfileScreen extends StatelessWidget {
       );
     }
     final dateStr = d.deathDate != null
-        ? '${d.deathDate!.day.toString().padLeft(2, '0')}-${_monthName(d.deathDate!.month)}-${d.deathDate!.year}'
-        : '${d.deathYear ?? '?'}';
+        ? formatDeathDate(context, d.deathDate!)
+        : (d.deathYear != null ? formatNumber(context, d.deathYear!) : '?');
     final yearsInterred = d.deathYear != null && d.deathYear! > 0
         ? DateTime.now().year - d.deathYear!
         : null;
@@ -105,7 +107,7 @@ class DeceasedProfileScreen extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          '${AppStrings.tr(context, 'age')}: ${d.birthDate != null ? (d.deathYear ?? DateTime.now().year) - d.birthDate!.year : '?'}',
+                          '${AppStrings.tr(context, 'age')}: ${d.birthDate != null ? formatNumber(context, (d.deathYear ?? DateTime.now().year) - d.birthDate!.year) : '?'}',
                           style: TextStyle(
                             fontSize: 12,
                             height: 16 / 12,
@@ -141,7 +143,7 @@ class DeceasedProfileScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
-                            '${AppStrings.tr(context, 'graveNumber')}: ${d.plotNumber ?? d.sectionId ?? '?'}',
+                            '${AppStrings.tr(context, 'graveNumber')}: ${_formatGraveLocation(context, d.plotNumber ?? d.sectionId ?? '?')}',
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
@@ -210,7 +212,7 @@ class DeceasedProfileScreen extends StatelessWidget {
                           ),
                           if (yearsInterred != null)
                             Text(
-                              '${AppStrings.tr(context, 'yearsInterred')}: $yearsInterred',
+                              '${AppStrings.tr(context, 'yearsInterred')}: ${formatNumber(context, yearsInterred)}',
                               style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
@@ -296,7 +298,7 @@ class DeceasedProfileScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${d.birthYear ?? '?'} – ${d.deathYear ?? '?'}',
+                    '${d.birthYear != null ? formatNumber(context, d.birthYear!) : '?'} – ${d.deathYear != null ? formatNumber(context, d.deathYear!) : '?'}',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
@@ -326,10 +328,10 @@ class DeceasedProfileScreen extends StatelessWidget {
                   if (d.sectionId != null || d.plotNumber != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 4),
-                      child: Text(
-                        '${AppStrings.tr(context, 'section')} ${d.sectionId ?? '?'}, ${AppStrings.tr(context, 'plot')} ${d.plotNumber ?? '?'}',
-                        style: TextStyle(fontSize: 12, height: 16 / 12, color: Colors.black.withOpacity(0.5)),
-                      ),
+                        child: Text(
+                          '${AppStrings.tr(context, 'section')} ${_formatGraveLocation(context, d.sectionId ?? '?')}, ${AppStrings.tr(context, 'plot')} ${_formatGraveLocation(context, d.plotNumber ?? '?')}',
+                          style: TextStyle(fontSize: 12, height: 16 / 12, color: Colors.black.withOpacity(0.5)),
+                        ),
                     ),
                   if (d.bioHtml != null && d.bioHtml!.isNotEmpty) ...[
                     const SizedBox(height: 28),
