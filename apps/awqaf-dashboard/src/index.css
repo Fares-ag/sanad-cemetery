@@ -702,7 +702,7 @@ a {
 
 [dir='rtl'] .dash-shell,
 .dash-shell[dir='rtl'] {
-  flex-direction: row-reverse;
+  flex-direction: row;
 }
 
 [dir='rtl'] .toolbar-actions {
