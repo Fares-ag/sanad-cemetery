@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/maintenance_ticket.dart';
 import '../providers/locale_provider.dart';
+import '../utils/locale_digits.dart';
 
 /// App translations for English and Arabic.
 class AppStrings {
@@ -833,15 +834,20 @@ class AppStrings {
   }
 
   static String tr(BuildContext context, String key, [String? arg1]) {
-    final s = trRaw(context, key);
-    if (arg1 != null && s.contains('%s')) return s.replaceFirst('%s', arg1);
-    return s;
+    final locale = context.watch<LocaleProvider>();
+    final map = _bundle(locale.locale.languageCode);
+    String s = map[key] ?? _en[key] ?? key;
+    if (arg1 != null && s.contains('%s')) {
+      s = s.replaceFirst('%s', arg1);
+    }
+    return locale.isArabic ? westernDigitsToEasternArabic(s) : s;
   }
 
   static String trRaw(BuildContext context, String key) {
     final locale = context.watch<LocaleProvider>();
     final map = _bundle(locale.locale.languageCode);
-    return map[key] ?? _en[key] ?? key;
+    final s = map[key] ?? _en[key] ?? key;
+    return locale.isArabic ? westernDigitsToEasternArabic(s) : s;
   }
 
   static String trOptional(BuildContext context, String key) {

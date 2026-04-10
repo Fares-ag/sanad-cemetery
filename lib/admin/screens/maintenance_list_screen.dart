@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../models/maintenance_ticket.dart';
+import '../../utils/date_format.dart';
 import '../state/admin_data_provider.dart';
 
 class MaintenanceListScreen extends StatefulWidget {
@@ -263,7 +264,7 @@ class _TicketCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${ticket.status.displayName} · ${ticket.createdAt.toString().substring(0, 16)}',
+                      '${ticket.status.displayName} · ${formatDateTimeCompact(context, ticket.createdAt)}',
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),

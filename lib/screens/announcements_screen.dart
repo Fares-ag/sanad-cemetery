@@ -7,6 +7,7 @@ import '../providers/app_content_provider.dart';
 import '../services/app_content_api.dart';
 import '../theme/app_theme.dart';
 import '../utils/date_format.dart';
+import '../utils/locale_digits.dart';
 
 /// Recent announcements from the municipality content API + public submission (pending approval).
 class AnnouncementsScreen extends StatefulWidget {
@@ -537,7 +538,10 @@ class _SubmitAnnouncementCard extends StatelessWidget {
   Widget build(BuildContext context) {
     String fmt(DateTime? d) {
       if (d == null) return AppStrings.tr(context, 'tapToSelectDate');
-      return MaterialLocalizations.of(context).formatMediumDate(d);
+      return localizeWesternDigitsForDisplay(
+        context,
+        MaterialLocalizations.of(context).formatMediumDate(d),
+      );
     }
 
     String fmtSvc(DateTime? d) {

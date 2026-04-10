@@ -8,7 +8,7 @@ const AWQAF_APP_URL = import.meta.env.VITE_AWQAF_DASHBOARD_URL ?? 'http://localh
 
 export function Layout() {
   const { logout, currentUser, canManageUsers } = useAuth();
-  const { t } = useI18n();
+  const { t, isRtl } = useI18n();
 
   const links = useMemo(() => {
     const base: Array<{ to: string; labelKey: DashKey; end?: boolean }> = [
@@ -33,7 +33,7 @@ export function Layout() {
     )?.label ?? t('nav.overview');
 
   return (
-    <div className="dash-shell">
+    <div className="dash-shell" dir={isRtl ? 'rtl' : 'ltr'}>
       <aside className="dash-sidebar">
         <div className="dash-brand">
           <div className="dash-brand-mark">S</div>

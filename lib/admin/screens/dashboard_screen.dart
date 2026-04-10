@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../models/deceased.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/date_format.dart';
 import '../state/admin_data_provider.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -101,7 +102,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     Expanded(
                       child: _StatCard(
                         title: 'Deceased records',
-                        value: '${data.deceased.length}',
+                        value: formatNumber(context, data.deceased.length),
                         icon: Icons.person_rounded,
                         color: theme.colorScheme.primary,
                         accent: true,
@@ -112,7 +113,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     Expanded(
                       child: _StatCard(
                         title: 'Open maintenance',
-                        value: '${data.openTicketsCount}',
+                        value: formatNumber(context, data.openTicketsCount),
                         icon: Icons.construction_rounded,
                         color: theme.colorScheme.error,
                         onTap: () => context.go('/maintenance'),
@@ -122,7 +123,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     Expanded(
                       child: _StatCard(
                         title: 'Sections / sites',
-                        value: '${data.sections.length}',
+                        value: formatNumber(context, data.sections.length),
                         icon: Icons.place_rounded,
                         color: theme.colorScheme.secondary,
                         onTap: () => context.go('/sections'),

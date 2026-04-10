@@ -17,7 +17,7 @@ const baseDefs: Array<{ to: string; labelKey: AwqafKey; end?: boolean }> = [
 
 export function AwqafLayout() {
   const { logout, currentUser, canManageUsers } = useAwqafAuth();
-  const { t } = useI18n();
+  const { t, isRtl } = useI18n();
 
   const links = useMemo(() => {
     const withUsers = canManageUsers
@@ -33,7 +33,7 @@ export function AwqafLayout() {
     )?.label ?? t('nav.overview');
 
   return (
-    <div className="dash-shell awqaf-dash">
+    <div className="dash-shell awqaf-dash" dir={isRtl ? 'rtl' : 'ltr'}>
       <aside className="dash-sidebar awqaf-sidebar">
         <div className="dash-brand">
           <div className="dash-brand-mark awqaf-brand-mark">A</div>

@@ -6,6 +6,8 @@ import '../models/deceased.dart';
 import '../models/search_params.dart';
 import '../services/search_service.dart';
 import '../theme/app_theme.dart';
+import '../utils/date_format.dart';
+import '../utils/locale_digits.dart';
 
 /// Search for Deceased — aligned to home page design: light theme, maroon accent, same typography.
 class SearchScreen extends StatefulWidget {
@@ -161,12 +163,16 @@ class _SearchScreenState extends State<SearchScreen> {
                   children: [
                     if (_params.birthYearFrom != null || _params.birthYearTo != null)
                       Chip(
-                        label: Text('${AppStrings.tr(context, 'birth')} ${_params.birthYearFrom ?? '?'}–${_params.birthYearTo ?? '?'}'),
+                        label: Text(
+                          '${AppStrings.tr(context, 'birth')} ${_params.birthYearFrom != null ? formatNumber(context, _params.birthYearFrom!) : '?'}–${_params.birthYearTo != null ? formatNumber(context, _params.birthYearTo!) : '?'}',
+                        ),
                         onDeleted: () => setState(() { _params = _params.copyWith(birthYearFrom: null, birthYearTo: null); _search(); }),
                       ),
                     if (_params.deathYearFrom != null || _params.deathYearTo != null)
                       Chip(
-                        label: Text('${AppStrings.tr(context, 'death')} ${_params.deathYearFrom ?? '?'}–${_params.deathYearTo ?? '?'}'),
+                        label: Text(
+                          '${AppStrings.tr(context, 'death')} ${_params.deathYearFrom != null ? formatNumber(context, _params.deathYearFrom!) : '?'}–${_params.deathYearTo != null ? formatNumber(context, _params.deathYearTo!) : '?'}',
+                        ),
                         onDeleted: () => setState(() { _params = _params.copyWith(deathYearFrom: null, deathYearTo: null); _search(); }),
                       ),
                     if (_veteranOnly)
@@ -284,7 +290,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                             ),
                                             const SizedBox(height: 2),
                                             Text(
-                                              '${AppStrings.tr(context, 'graveNumber')}: $graveNum',
+                                              '${AppStrings.tr(context, 'graveNumber')}: ${localizeWesternDigitsForDisplay(context, graveNum)}',
                                               style: TextStyle(
                                                 fontSize: 13,
                                                 color: Colors.black.withOpacity(0.5),
@@ -295,7 +301,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                       ),
                                       if (age != null)
                                         Text(
-                                          '${AppStrings.tr(context, 'age')}: $age',
+                                          '${AppStrings.tr(context, 'age')}: ${formatNumber(context, age)}',
                                           style: TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w500,

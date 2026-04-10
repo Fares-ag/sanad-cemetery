@@ -12,7 +12,8 @@ import '../services/maintenance_service.dart';
 import '../services/search_service.dart';
 import '../services/qr_service.dart';
 import '../providers/user_role_provider.dart';
-import '../models/user_role.dart';
+import '../utils/date_format.dart';
+import '../utils/locale_digits.dart';
 
 class MaintenanceScreen extends StatefulWidget {
   const MaintenanceScreen({super.key});
@@ -110,7 +111,7 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
                       style: AppTheme.cardTitle.copyWith(fontWeight: FontWeight.w600),
                     ),
                     subtitle: Text(
-                      '${AppStrings.status(context, t.status)} · ${t.createdAt.toString().substring(0, 16)}',
+                      '${AppStrings.status(context, t.status)} · ${formatDateTimeCompact(context, t.createdAt)}',
                       style: AppTheme.labelMedium,
                     ),
                     trailing: Icon(
@@ -158,11 +159,13 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Status: ${AppStrings.status(ctx, t.status)}'),
-              Text('Created: ${t.createdAt}'),
-              if (t.updatedAt != null) Text('Updated: ${t.updatedAt}'),
+              Text('Created: ${formatDateTimeCompact(ctx, t.createdAt)}'),
+              if (t.updatedAt != null) Text('Updated: ${formatDateTimeCompact(ctx, t.updatedAt!)}'),
               if (deceased != null) Text('Tombstone: ${deceased.fullName} (Section ${deceased.sectionId ?? '?'}, Plot ${deceased.plotNumber ?? '?'})'),
               if (t.description != null) Text('Notes: ${t.description}'),
-              Text('Location: ${t.lat.toStringAsFixed(5)}, ${t.lon.toStringAsFixed(5)}'),
+              Text(
+                'Location: ${localizeWesternDigitsForDisplay(ctx, '${t.lat.toStringAsFixed(5)}, ${t.lon.toStringAsFixed(5)}')}',
+              ),
             ],
           ),
         ),
@@ -284,7 +287,7 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
                         Padding(
                           padding: const EdgeInsets.only(top: 8),
                           child: Text(
-                            '${AppStrings.tr(ctx, 'location')}: ${lat!.toStringAsFixed(5)}, ${lon!.toStringAsFixed(5)}',
+                            '${AppStrings.tr(ctx, 'location')}: ${localizeWesternDigitsForDisplay(ctx, '${lat!.toStringAsFixed(5)}, ${lon!.toStringAsFixed(5)}')}',
                             style: Theme.of(ctx).textTheme.bodySmall,
                           ),
                         ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../l10n/app_strings.dart';
 import '../theme/app_theme.dart';
+import '../utils/date_format.dart';
 
 class FirstResponderScreen extends StatelessWidget {
   const FirstResponderScreen({super.key});
@@ -35,7 +36,7 @@ class FirstResponderScreen extends StatelessWidget {
             Card(
               margin: const EdgeInsets.only(bottom: 8),
               child: ListTile(
-                title: Text('Field update ${i + 1}'),
+                title: Text('Field update ${formatNumber(context, i + 1)}'),
                 subtitle: Text(AppStrings.tr(context, 'submittedAt')),
               ),
             ),

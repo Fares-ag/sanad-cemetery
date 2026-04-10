@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_strings.dart';
 import '../providers/app_content_provider.dart';
 import '../theme/app_theme.dart';
+import '../utils/date_format.dart';
 
 class MinistryNewsScreen extends StatelessWidget {
   const MinistryNewsScreen({super.key});
@@ -37,8 +38,12 @@ class MinistryNewsScreen extends StatelessWidget {
         child: Consumer<AppContentProvider>(
           builder: (context, ac, _) {
             final m = ac.data?.ministryStats;
-            final today = m != null ? '${m.deceasedToday}' : (ac.loading ? '…' : '3');
-            final month = m != null ? '${m.deceasedThisMonth}' : (ac.loading ? '…' : '42');
+            final today = m != null
+                ? formatNumber(context, m.deceasedToday)
+                : (ac.loading ? '…' : formatNumber(context, 3));
+            final month = m != null
+                ? formatNumber(context, m.deceasedThisMonth)
+                : (ac.loading ? '…' : formatNumber(context, 42));
             final showFatalError = !ac.loading && ac.data == null;
             final showBundledHint = ac.lastRefreshUsedAssetFallback && ac.data != null;
 

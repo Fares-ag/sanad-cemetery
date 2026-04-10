@@ -700,7 +700,8 @@ a {
   font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
 }
 
-[dir='rtl'] .dash-shell {
+[dir='rtl'] .dash-shell,
+.dash-shell[dir='rtl'] {
   flex-direction: row-reverse;
 }
 
@@ -735,7 +736,8 @@ a {
   .dash-shell {
     flex-direction: column;
   }
-  [dir='rtl'] .dash-shell {
+  [dir='rtl'] .dash-shell,
+  .dash-shell[dir='rtl'] {
     flex-direction: column;
   }
   .dash-sidebar {

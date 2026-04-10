@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../models/maintenance_ticket.dart';
+import '../../utils/date_format.dart';
+import '../../utils/locale_digits.dart';
 import '../state/admin_data_provider.dart';
 
 class MaintenanceDetailScreen extends StatelessWidget {
@@ -101,8 +103,8 @@ class MaintenanceDetailScreen extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  Text('Created: ${ticket.createdAt}'),
-                  if (ticket.updatedAt != null) Text('Updated: ${ticket.updatedAt}'),
+                  Text('Created: ${formatDateTimeCompact(context, ticket.createdAt)}'),
+                  if (ticket.updatedAt != null) Text('Updated: ${formatDateTimeCompact(context, ticket.updatedAt!)}'),
                   if (ticket.description != null && ticket.description!.isNotEmpty) ...[
                     const SizedBox(height: 12),
                     Text(
@@ -112,13 +114,13 @@ class MaintenanceDetailScreen extends StatelessWidget {
                   ],
                   const SizedBox(height: 12),
                   Text(
-                    'Location: ${ticket.lat.toStringAsFixed(5)}, ${ticket.lon.toStringAsFixed(5)}',
+                    'Location: ${localizeWesternDigitsForDisplay(context, '${ticket.lat.toStringAsFixed(5)}, ${ticket.lon.toStringAsFixed(5)}')}',
                     style: theme.textTheme.bodySmall,
                   ),
                   if (deceased != null) ...[
                     const SizedBox(height: 8),
                     Text(
-                      'Linked grave: ${deceased.fullName} (${ticket.graveId})',
+                      'Linked grave: ${deceased.fullName} (${localizeWesternDigitsForDisplay(context, ticket.graveId ?? '')})',
                       style: theme.textTheme.bodySmall,
                     ),
                   ],

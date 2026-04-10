@@ -11,6 +11,7 @@ import 'package:flutter_compass/flutter_compass.dart';
 import '../models/deceased.dart';
 import '../services/search_service.dart';
 import '../services/navigation_service.dart';
+import '../utils/date_format.dart';
 
 class MapNavigationScreen extends StatefulWidget {
   final String graveId;
@@ -406,7 +407,7 @@ class _DirectionCard extends StatelessWidget {
           if (distanceMeters != null && !arrived) ...[
             const SizedBox(height: AppTheme.spaceSm),
             Text(
-              '${distanceMeters!.toStringAsFixed(0)} ${AppStrings.tr(context, 'mAway')}',
+              '${formatNumber(context, distanceMeters!.round())} ${AppStrings.tr(context, 'mAway')}',
               style: AppTheme.bodySecondary(0.7),
             ),
           ],

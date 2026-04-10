@@ -9,6 +9,7 @@ import '../providers/app_content_provider.dart';
 import '../providers/emergency_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/date_format.dart';
+import '../utils/date_format.dart';
 import '../utils/home_content_helpers.dart';
 import '../utils/maintenance_metrics.dart';
 import '../services/maintenance_service.dart';
@@ -251,13 +252,13 @@ class HomeMinistrySnapshot extends StatelessWidget {
                   Expanded(
                     child: _SnapCell(
                       label: AppStrings.tr(context, 'deceasedToday'),
-                      value: '${m.deceasedToday}',
+                      value: formatNumber(context, m.deceasedToday),
                     ),
                   ),
                   Expanded(
                     child: _SnapCell(
                       label: AppStrings.tr(context, 'deceasedThisMonth'),
-                      value: '${m.deceasedThisMonth}',
+                      value: formatNumber(context, m.deceasedThisMonth),
                     ),
                   ),
                 ],
@@ -456,7 +457,7 @@ class HomeOpenReportsBanner extends StatelessWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      AppStrings.tr(context, 'homeOpenReports', '$n'),
+                      AppStrings.tr(context, 'homeOpenReports', formatNumber(context, n)),
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,

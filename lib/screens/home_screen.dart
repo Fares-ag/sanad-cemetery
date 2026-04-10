@@ -15,6 +15,7 @@ import '../widgets/home_hero_carousel.dart';
 import '../config/app_external_urls.dart';
 import '../services/maintenance_service.dart';
 import '../utils/maintenance_metrics.dart';
+import '../utils/date_format.dart';
 
 /// Home per Figma 165:21551 — exact layout, spacing, and typography.
 class HomeScreen extends StatelessWidget {
@@ -189,8 +190,8 @@ class HomeScreen extends StatelessWidget {
                         Expanded(
                           child: _MetricCard(
                             label: AppStrings.tr(context, 'reportedIssues'),
-                            value: '$open',
-                            delta: AppStrings.tr(context, 'homeMetricNew7d', '$n7'),
+                            value: formatNumber(context, open),
+                            delta: AppStrings.tr(context, 'homeMetricNew7d', formatNumber(context, n7)),
                             onTap: () => context.push('/metrics-detail/reported'),
                           ),
                         ),
@@ -198,8 +199,8 @@ class HomeScreen extends StatelessWidget {
                         Expanded(
                           child: _MetricCard(
                             label: AppStrings.tr(context, 'resolvedIssues'),
-                            value: '$resolved',
-                            delta: AppStrings.tr(context, 'homeMetricResolved7d', '$r7'),
+                            value: formatNumber(context, resolved),
+                            delta: AppStrings.tr(context, 'homeMetricResolved7d', formatNumber(context, r7)),
                             onTap: () => context.push('/metrics-detail/resolved'),
                           ),
                         ),

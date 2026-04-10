@@ -8,11 +8,13 @@ import 'package:flutter_html/flutter_html.dart';
 import '../services/search_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/date_format.dart';
+import '../utils/locale_digits.dart';
 
 /// Formats section/plot for display (locale-aware numbers, letters unchanged).
 String _formatGraveLocation(BuildContext context, String value) {
   final n = int.tryParse(value);
-  return n != null ? formatNumber(context, n) : value;
+  if (n != null) return formatNumber(context, n);
+  return localizeWesternDigitsForDisplay(context, value);
 }
 
 /// Deceased profile — aligned to home page: white background, maroon accent, same typography & cards.

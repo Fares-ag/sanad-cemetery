@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_strings.dart';
 import '../providers/accessibility_provider.dart';
 import '../theme/app_theme.dart';
+import '../utils/date_format.dart';
 
 class AccessibilitySettingsScreen extends StatelessWidget {
   const AccessibilitySettingsScreen({super.key});
@@ -35,7 +36,7 @@ class AccessibilitySettingsScreen extends StatelessWidget {
             min: 1.0,
             max: 1.6,
             divisions: 6,
-            label: a11y.textScale.toStringAsFixed(1),
+            label: formatNumber(context, a11y.textScale),
             onChanged: (v) => context.read<AccessibilityProvider>().setTextScale(v),
           ),
           SwitchListTile(
