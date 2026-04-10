@@ -122,7 +122,13 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
                   : Icons.arrow_back_rounded,
               color: Colors.black,
             ),
-            onPressed: () => context.go('/'),
+            onPressed: () {
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.go('/requests');
+              }
+            },
           ),
           title: Text(
             AppStrings.tr(context, 'reportAnIssue'),
@@ -261,7 +267,9 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
             ),
             const SizedBox(height: 8),
             FilledButton(
-              onPressed: () => context.push('/success?msg=thankYouRequest'),
+              onPressed: () {
+                context.push('/success?msg=thankYouRequest');
+              },
               style: FilledButton.styleFrom(
                 backgroundColor: _maroon,
                 foregroundColor: Colors.white,
@@ -269,7 +277,7 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
               child: Text(
-                AppStrings.tr(context, 'submitRequest'),
+                AppStrings.tr(context, 'submitMaintenanceReport'),
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
             ),

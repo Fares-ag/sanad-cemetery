@@ -1,4 +1,4 @@
-/// Deceased record (digital memorial).
+/// Deceased record for cemetery search and grave navigation.
 class Deceased {
   final String id;
   final String firstName;
@@ -127,18 +127,18 @@ class FamilyLink {
   Map<String, dynamic> toJson() => {'label': label, 'deceasedId': deceasedId, 'name': name};
 }
 
-/// Digital flower / tribute visible for 24 hours.
+/// Short-lived tribute marker (optional; legacy).
 class Tribute {
   final String id;
   final DateTime placedAt;
   final String? senderName;
-  final String iconType; // e.g. "flower", "candle"
+  final String iconType;
 
   const Tribute({
     required this.id,
     required this.placedAt,
     this.senderName,
-    this.iconType = 'flower',
+    this.iconType = 'tribute',
   });
 
   bool get isExpired => DateTime.now().difference(placedAt).inHours >= 24;
@@ -148,7 +148,7 @@ class Tribute {
       id: json['id'] as String,
       placedAt: DateTime.parse(json['placedAt'] as String),
       senderName: json['senderName'] as String?,
-      iconType: json['iconType'] as String? ?? 'flower',
+      iconType: json['iconType'] as String? ?? 'tribute',
     );
   }
 

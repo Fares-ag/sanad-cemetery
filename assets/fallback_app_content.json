@@ -1,0 +1,46 @@
+{
+  "homeHero": {
+    "imageUrl": "",
+    "slides": [
+      { "text": "Bundled demo — connect the content API for live hero from the municipality dashboard.", "textAr": "محتوى تجريبي مضمّن — صِل واجهة المحتوى لعرض البطاقة العلوية من لوحة البلدية." }
+    ],
+    "reportCtaEn": "",
+    "reportCtaAr": ""
+  },
+  "ministryStats": {
+    "deceasedToday": 3,
+    "deceasedThisMonth": 42,
+    "feedNote": "Bundled demo content — start the content API (server/) for live updates from the municipality dashboard.",
+    "feedNoteAr": "محتوى تجريبي مضمّن — شغّل واجهة المحتوى (server/) للتحديثات الحية من لوحة البلدية."
+  },
+  "siteInfo": {
+    "openingHours": "Sun–Thu 6:00–20:00 · Fri 12:00–20:00 · Sat 6:00–18:00",
+    "openingHoursAr": "الأحد–الخميس ٦:٠٠–٢٠:٠٠ · الجمعة ١٢:٠٠–٢٠:٠٠ · السبت ٦:٠٠–١٨:٠٠",
+    "phone": "+974 0000 0000",
+    "website": "https://www.gco.gov.qa"
+  },
+  "announcements": [
+    {
+      "id": "ann-001",
+      "name": "Ahmed Khan",
+      "nameAr": "أحمد خان",
+      "passedAwayDate": "2026-04-08",
+      "serviceType": "funeral_prayers",
+      "serviceDateTime": "2026-04-18T14:00:00.000Z",
+      "burialLocation": "Section B — Plot 14 · 25.1960, 51.4873",
+      "burialLocationAr": "القطعة ب — قبر ١٤",
+      "iconKey": "prayer"
+    },
+    {
+      "id": "ann-002",
+      "name": "Mirza Khan",
+      "nameAr": "ميرزا خان",
+      "passedAwayDate": "2026-04-05",
+      "serviceType": "burial",
+      "serviceDateTime": "2026-04-25T10:00:00.000Z",
+      "burialLocation": "Section A — Plot 22 · 25.1962, 51.4875",
+      "burialLocationAr": "القطعة أ — قبر ٢٢",
+      "iconKey": "burial"
+    }
+  ]
+}

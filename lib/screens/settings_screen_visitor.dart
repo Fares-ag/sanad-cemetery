@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_strings.dart';
-import '../providers/locale_provider.dart';
+import '../models/user_role.dart';
+import '../providers/user_role_provider.dart';
 import '../theme/app_theme.dart';
+import '../widgets/language_picker_sheet.dart';
 
 /// Settings list — aligned with app design system.
 class SettingsScreenVisitor extends StatelessWidget {
@@ -12,6 +14,21 @@ class SettingsScreenVisitor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
+    String roleLabel(UserRole r) {
+      switch (r) {
+        case UserRole.visitor:
+          return AppStrings.tr(context, 'roleVisitor');
+        case UserRole.municipalityCrew:
+          return AppStrings.tr(context, 'roleMunicipalityCrew');
+        case UserRole.ministryMunicipality:
+          return AppStrings.tr(context, 'roleMinistryMunicipality');
+        case UserRole.admin:
+          return AppStrings.tr(context, 'roleAdmin');
+        case UserRole.superAdmin:
+          return AppStrings.tr(context, 'roleSuperAdmin');
+      }
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -31,7 +48,7 @@ class SettingsScreenVisitor extends StatelessWidget {
           ),
         ],
       ),
-      body: Column(
+      body: ListView(
         children: [
           Divider(height: 1, color: AppTheme.divider()),
           _SettingsTile(
@@ -40,9 +57,43 @@ class SettingsScreenVisitor extends StatelessWidget {
           ),
           Divider(height: 1, color: AppTheme.divider()),
           _SettingsTile(
-            title: AppStrings.tr(context, 'language'),
-            onTap: () => context.read<LocaleProvider>().toggleLocale(),
+            title: AppStrings.tr(context, 'chooseLanguage'),
+            onTap: () => showLanguagePickerSheet(context),
           ),
+          Divider(height: 1, color: AppTheme.divider()),
+          _SettingsTile(
+            title: AppStrings.tr(context, 'accessibilityPortal'),
+            subtitle: AppStrings.tr(context, 'accessibilityHelp'),
+            onTap: () => context.push('/accessibility-settings'),
+          ),
+          Divider(height: 1, color: AppTheme.divider()),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(AppTheme.spaceMd, 12, AppTheme.spaceMd, 4),
+            child: Text(AppStrings.tr(context, 'userRole'), style: AppTheme.labelMuted(0.65)),
+          ),
+          Consumer<UserRoleProvider>(
+            builder: (context, ur, _) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppTheme.spaceMd),
+                child: DropdownButtonFormField<UserRole>(
+                  value: ur.role,
+                  decoration: AppTheme.inputDecoration(hintText: ''),
+                  items: UserRole.values
+                      .map(
+                        (r) => DropdownMenuItem(
+                          value: r,
+                          child: Text(roleLabel(r)),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (v) {
+                    if (v != null) ur.setRole(v);
+                  },
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 8),
           Divider(height: 1, color: AppTheme.divider()),
           _SettingsTile(
             title: AppStrings.tr(context, 'termsAndConditions'),
@@ -81,9 +132,10 @@ class SettingsScreenVisitor extends StatelessWidget {
 }
 
 class _SettingsTile extends StatelessWidget {
-  const _SettingsTile({required this.title, required this.onTap});
+  const _SettingsTile({required this.title, required this.onTap, this.subtitle});
 
   final String title;
+  final String? subtitle;
   final VoidCallback onTap;
 
   @override
@@ -92,6 +144,9 @@ class _SettingsTile extends StatelessWidget {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: AppTheme.spaceMd, vertical: AppTheme.spaceLg),
       title: Text(title, style: AppTheme.cardTitle),
+      subtitle: subtitle != null
+          ? Text(subtitle!, style: AppTheme.labelMuted(0.65))
+          : null,
       trailing: Icon(
         isRtl ? Icons.chevron_left_rounded : Icons.chevron_right_rounded,
         color: AppTheme.textSecondary(0.6),

@@ -36,9 +36,9 @@ class AppIcons {
   static const IconData park = Icons.park_rounded;
   static const IconData grass = Icons.grass_rounded;
 
-  // Memorial & tribute
-  static const IconData flower = Icons.local_florist_rounded;
-  static const IconData celebration = Icons.celebration_rounded;
+  // Funeral prayers & burial (public announcements)
+  static const IconData prayer = Icons.mosque_rounded;
+  static const IconData burialService = Icons.place_rounded;
 
   // Media & content
   static const IconData image = Icons.image_rounded;
@@ -69,6 +69,30 @@ class AppTheme {
   static Color border([double opacity = 0.1]) => Colors.black.withOpacity(opacity);
   static Color divider([double opacity = 0.12]) => Colors.black.withOpacity(opacity);
   static Color cardMuted([double opacity = 0.05]) => Colors.black.withOpacity(opacity);
+
+  /// Warm neutral page background — aligned with web dashboards (`--bg`).
+  static const Color appScaffoldBackground = Color(0xFFFAF8F8);
+
+  /// Hub screens use the same canvas as the rest of the app.
+  static const Color hubScaffoldBackground = appScaffoldBackground;
+
+  /// Hub row: always light surface for text contrast (avoid dark M3 card surfaces).
+  static const Color hubCardBackground = Color(0xFFFFFFFF);
+
+  /// Soft outline for cards and rows (matches web `--border` feel).
+  static const Color hubCardBorderColor = Color(0xFFE3DEDE);
+
+  /// Subtle elevation for content cards on the scaffold (web `.panel` shadow).
+  static final List<BoxShadow> cardElevationShadow = [
+    BoxShadow(
+      color: Colors.black.withOpacity(0.05),
+      blurRadius: 10,
+      offset: const Offset(0, 2),
+    ),
+  ];
+
+  /// Icon backplate on hub rows (light maroon wash).
+  static Color iconHubBackground([double opacity = 0.10]) => maroon.withValues(alpha: opacity);
 
   // --- Spacing ---
   static const double spaceXs = 4;
@@ -144,8 +168,9 @@ class AppTheme {
   // --- Decoration helpers ---
   static BoxDecoration cardDecoration({Color? borderColor}) => BoxDecoration(
     color: Colors.white,
-    border: Border.all(color: borderColor ?? border()),
+    border: Border.all(color: borderColor ?? hubCardBorderColor, width: 1),
     borderRadius: BorderRadius.circular(radiusSm),
+    boxShadow: cardElevationShadow,
   );
 
   static InputDecoration inputDecoration({

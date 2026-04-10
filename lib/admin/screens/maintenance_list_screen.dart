@@ -202,6 +202,8 @@ class _MaintenanceListScreenState extends State<MaintenanceListScreen> {
                     lon: lon,
                     status: TicketStatus.reported,
                     createdAt: DateTime.now(),
+                    highPriorityFromAwqaf: false,
+                    submittedByRole: null,
                   ));
                   Navigator.pop(ctx);
                 },

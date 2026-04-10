@@ -11,6 +11,8 @@ import '../models/maintenance_ticket.dart';
 import '../services/maintenance_service.dart';
 import '../services/search_service.dart';
 import '../services/qr_service.dart';
+import '../providers/user_role_provider.dart';
+import '../models/user_role.dart';
 
 class MaintenanceScreen extends StatefulWidget {
   const MaintenanceScreen({super.key});
@@ -309,6 +311,7 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
                     submitLat = currentPos.latitude;
                     submitLon = currentPos.longitude;
                   }
+                  final role = context.read<UserRoleProvider>().role;
                   final ticket = await context.read<MaintenanceService>().submit(
                     category: category!,
                     description: description,
@@ -316,11 +319,13 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
                     lat: submitLat,
                     lon: submitLon,
                     graveId: graveId,
+                    highPriorityFromAwqaf: false,
+                    submittedByRole: role.name,
                   );
                   if (ctx.mounted) Navigator.pop(ctx);
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${AppStrings.tr(context, 'reportSubmitted')} ID: ${ticket.id}')));
                 },
-                child: Text(AppStrings.tr(ctx, 'submit')),
+                child: Text(AppStrings.tr(ctx, 'submitMaintenanceReport')),
               ),
             ],
           );

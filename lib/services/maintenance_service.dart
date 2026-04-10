@@ -65,6 +65,8 @@ class MaintenanceService extends ChangeNotifier {
     required double lat,
     required double lon,
     String? graveId,
+    bool highPriorityFromAwqaf = false,
+    String? submittedByRole,
   }) async {
     final ticket = MaintenanceTicket(
       id: 'ticket_${DateTime.now().millisecondsSinceEpoch}',
@@ -76,6 +78,8 @@ class MaintenanceService extends ChangeNotifier {
       graveId: graveId,
       status: TicketStatus.reported,
       createdAt: DateTime.now(),
+      highPriorityFromAwqaf: highPriorityFromAwqaf,
+      submittedByRole: submittedByRole,
     );
     _tickets.insert(0, ticket);
     await _saveToStorage();
@@ -99,6 +103,8 @@ class MaintenanceService extends ChangeNotifier {
       createdAt: old.createdAt,
       updatedAt: DateTime.now(),
       reportedByUserId: old.reportedByUserId,
+      highPriorityFromAwqaf: old.highPriorityFromAwqaf,
+      submittedByRole: old.submittedByRole,
     );
     _tickets[i] = updated;
     await _saveToStorage();

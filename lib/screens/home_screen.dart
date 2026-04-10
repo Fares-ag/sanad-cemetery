@@ -4,11 +4,17 @@ import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../l10n/app_strings.dart';
-import '../providers/locale_provider.dart';
 import '../providers/emergency_provider.dart';
+import '../providers/user_role_provider.dart';
+import '../models/user_role.dart';
 import '../services/emergency_storage.dart';
 import '../theme/app_theme.dart';
-import '../utils/date_format.dart';
+import '../widgets/language_picker_sheet.dart';
+import '../widgets/home_dashboard_sections.dart';
+import '../widgets/home_hero_carousel.dart';
+import '../config/app_external_urls.dart';
+import '../services/maintenance_service.dart';
+import '../utils/maintenance_metrics.dart';
 
 /// Home per Figma 165:21551 — exact layout, spacing, and typography.
 class HomeScreen extends StatelessWidget {
@@ -19,7 +25,7 @@ class HomeScreen extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.appScaffoldBackground,
       body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(
@@ -31,38 +37,17 @@ class HomeScreen extends StatelessWidget {
                 end: 12,
                 bottom: 16,
               ),
-              color: Colors.white,
+              color: AppTheme.appScaffoldBackground,
               child: Row(
                 children: [
                   CircleAvatar(
                     radius: 20,
-                    backgroundColor: Colors.black.withOpacity(0.1),
+                    backgroundColor: const Color(0xFFEDE9E9),
+                    child: Icon(Icons.person_rounded, size: 22, color: Colors.black.withValues(alpha: 0.35)),
                   ),
                   const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          AppStrings.tr(context, 'welcomeUser', 'Sultan'),
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 16,
-                            height: 24 / 16,
-                            color: Colors.black,
-                          ),
-                        ),
-                        Text(
-                          AppStrings.tr(context, 'welcomeManage'),
-                          style: TextStyle(
-                            fontSize: 12,
-                            height: 16 / 12,
-                            color: Colors.black.withOpacity(0.5),
-                          ),
-                        ),
-                      ],
-                    ),
+                  const Expanded(
+                    child: HomeWelcomeName(),
                   ),
                   IconButton(
                     icon: const Icon(AppIcons.search, size: AppIcons.sizeLg),
@@ -75,9 +60,76 @@ class HomeScreen extends StatelessWidget {
                       size: 24,
                       color: theme.colorScheme.primary,
                     ),
-                    tooltip: context.watch<LocaleProvider>().isArabic ? 'English' : 'العربية',
-                    onPressed: () => context.read<LocaleProvider>().toggleLocale(),
+                    tooltip: AppStrings.tr(context, 'chooseLanguage'),
+                    onPressed: () => showLanguagePickerSheet(context),
                   ),
+                  PopupMenuButton<String>(
+                    icon: const Icon(Icons.more_vert_rounded, color: Colors.black87),
+                    tooltip: AppStrings.tr(context, 'menuMore'),
+                    onSelected: (value) {
+                      switch (value) {
+                        case 'tutorials':
+                          context.push('/tutorials');
+                          break;
+                        case 'announcements':
+                          context.push('/announcements');
+                          break;
+                        case 'ministry':
+                          context.push('/ministry-news');
+                          break;
+                        case 'governance':
+                          context.push('/ministry-governance');
+                          break;
+                        case 'accessibility':
+                          context.push('/accessibility-settings');
+                          break;
+                      }
+                    },
+                    itemBuilder: (ctx) {
+                      return [
+                        PopupMenuItem(
+                          value: 'tutorials',
+                          child: Text(AppStrings.tr(ctx, 'tutorialsTitle')),
+                        ),
+                        PopupMenuItem(
+                          value: 'announcements',
+                          child: Text(AppStrings.tr(ctx, 'burialAnnouncements')),
+                        ),
+                        PopupMenuItem(
+                          value: 'ministry',
+                          child: Text(AppStrings.tr(ctx, 'ministryNewsTitle')),
+                        ),
+                        PopupMenuItem(
+                          value: 'governance',
+                          child: Text(AppStrings.tr(ctx, 'governanceOpenGuide')),
+                        ),
+                        PopupMenuItem(
+                          value: 'accessibility',
+                          child: Text(AppStrings.tr(ctx, 'accessibility')),
+                        ),
+                      ];
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  HomeHeroCarousel(onReport: () => context.push('/maintenance')),
+                  const SizedBox(height: 20),
+                  const HomeShortcutsCard(),
+                  const SizedBox(height: 12),
+                  const HomeMinistrySnapshot(),
+                  const SizedBox(height: 12),
+                  const HomeNextAnnouncementTeaser(),
+                  const SizedBox(height: 12),
+                  const HomeOpenReportsBanner(),
+                  const SizedBox(height: 8),
                 ],
               ),
             ),
@@ -86,9 +138,6 @@ class HomeScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                const SizedBox(height: 8),
-                _ReportHeroCard(onReport: () => context.go('/maintenance')),
-                const SizedBox(height: 25),
                 Padding(
                   padding: const EdgeInsets.only(top: 16),
                   child: Column(
@@ -115,83 +164,68 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _MetricCard(
-                        label: AppStrings.tr(context, 'reportedIssues'),
-                        value: '25',
-                        delta: '+5',
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: _MetricCard(
-                        label: AppStrings.tr(context, 'resolvedIssues'),
-                        value: '15',
-                        delta: '-2',
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 25),
-                Padding(
-                  padding: const EdgeInsets.only(top: 16),
+                Semantics(
+                  header: true,
                   child: Text(
-                    AppStrings.tr(context, 'recentReports'),
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black,
-                      height: 24 / 18,
+                    AppStrings.tr(context, 'tapCardForDetails'),
+                    style: TextStyle(
+                      fontSize: 12,
+                      height: 16 / 12,
+                      color: Colors.black.withOpacity(0.5),
                     ),
-                  ),
-                ),
-                _RecentReportTile(
-                  title: AppStrings.tr(context, 'oldCemetery'),
-                  subtitle: AppStrings.tr(context, 'brokenFence'),
-                  time: AppStrings.tr(context, 'reported1HourAgo'),
-                  icon: AppIcons.location,
-                ),
-                Divider(height: 1, color: Colors.black.withOpacity(0.12)),
-                _RecentReportTile(
-                  title: AppStrings.tr(context, 'dharmaCemetery'),
-                  subtitle: AppStrings.tr(context, 'overgrownBushes'),
-                  time: AppStrings.tr(context, 'reported3HoursAgo'),
-                  icon: AppIcons.park,
-                ),
-                const SizedBox(height: 25),
-                Padding(
-                  padding: const EdgeInsets.only(top: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        AppStrings.tr(context, 'announcements'),
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black,
-                          height: 24 / 18,
-                        ),
-                      ),
-                      Text(
-                        AppStrings.tr(context, 'sharingCondolences'),
-                        style: TextStyle(
-                          fontSize: 12,
-                          height: 16 / 12,
-                          color: Colors.black.withOpacity(0.5),
-                        ),
-                      ),
-                    ],
                   ),
                 ),
                 const SizedBox(height: 8),
-                _AnnouncementPreviewTile(
-                  name: 'Ahmed Khan',
-                  date: AppStrings.tr(context, 'passedAwayOn', formatDeathDate(context, DateTime(2026, 9, 20))),
-                  service: AppStrings.tr(context, 'memorialServiceOn', formatServiceDateTime(context, DateTime(2026, 9, 22, 16, 0))),
+                Consumer<MaintenanceService>(
+                  builder: (context, svc, _) {
+                    final now = DateTime.now();
+                    final tickets = svc.tickets;
+                    final open = countOpenMaintenanceTickets(tickets);
+                    final resolved = countResolvedMaintenanceTickets(tickets);
+                    final n7 = countCreatedLast7Days(tickets, now);
+                    final r7 = countResolvedLast7Days(tickets, now);
+                    return Row(
+                      children: [
+                        Expanded(
+                          child: _MetricCard(
+                            label: AppStrings.tr(context, 'reportedIssues'),
+                            value: '$open',
+                            delta: AppStrings.tr(context, 'homeMetricNew7d', '$n7'),
+                            onTap: () => context.push('/metrics-detail/reported'),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _MetricCard(
+                            label: AppStrings.tr(context, 'resolvedIssues'),
+                            value: '$resolved',
+                            delta: AppStrings.tr(context, 'homeMetricResolved7d', '$r7'),
+                            onTap: () => context.push('/metrics-detail/resolved'),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
+                const SizedBox(height: 20),
+                const SizedBox(height: 12),
+                const _AwqafDashboardNoticeCard(),
+                Consumer<UserRoleProvider>(
+                  builder: (context, roleProv, _) {
+                    if (roleProv.role != UserRole.municipalityCrew) {
+                      return const SizedBox.shrink();
+                    }
+                    return const Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SizedBox(height: 12),
+                        _MunicipalityCrewHomeCard(),
+                      ],
+                    );
+                  },
+                ),
+                const SizedBox(height: 16),
+                const HomeHoursContactCard(),
                 const SizedBox(height: 25),
                 Padding(
                   padding: const EdgeInsets.only(top: 16),
@@ -217,285 +251,75 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class _ReportHeroCard extends StatelessWidget {
-  const _ReportHeroCard({required this.onReport});
-
-  final VoidCallback onReport;
-
-  static const _heroImageAsset = 'images/home-img.png';
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(6),
-          child: SizedBox(
-            height: 120,
-            width: double.infinity,
-            child: Image.asset(
-              _heroImageAsset,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                height: 120,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(6),
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      _ReportHeroCard._maroon.withOpacity(0.25),
-                      _ReportHeroCard._maroon.withOpacity(0.08),
-                    ],
-                  ),
-                ),
-                alignment: Alignment.center,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Text(
-                    AppStrings.tr(context, 'reportVisibleIssues'),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white,
-                      height: 22 / 16,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          width: double.infinity,
-          child: TextButton(
-            onPressed: onReport,
-            style: TextButton.styleFrom(
-              backgroundColor: _maroon,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: Text(
-              AppStrings.tr(context, 'reportAnIssue'),
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                height: 22 / 16,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  static const _maroon = AppTheme.maroon;
-}
-
 class _MetricCard extends StatelessWidget {
   const _MetricCard({
     required this.label,
     required this.value,
     required this.delta,
+    required this.onTap,
   });
 
   final String label;
   final String value;
   final String delta;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.black.withOpacity(0.1)),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 14,
-              height: 20 / 14,
-              color: Colors.black.withOpacity(0.5),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w500,
-              height: 28 / 20,
-              color: Colors.black,
-            ),
-          ),
-          Text(
-            delta,
-            style: const TextStyle(
-              fontSize: 14,
-              height: 20 / 14,
-              color: Colors.black,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _RecentReportTile extends StatelessWidget {
-  const _RecentReportTile({
-    required this.title,
-    required this.subtitle,
-    required this.time,
-    required this.icon,
-  });
-
-  final String title;
-  final String subtitle;
-  final String time;
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Row(
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.05),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            alignment: Alignment.center,
-            child: Icon(icon, size: AppIcons.sizeMd, color: Colors.black87),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    height: 20 / 14,
-                    color: Colors.black,
-                  ),
-                ),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: 12,
-                    height: 16 / 12,
-                    color: Colors.black.withOpacity(0.5),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Text(
-            time,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              height: 20 / 14,
-              color: Colors.black,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _AnnouncementPreviewTile extends StatelessWidget {
-  const _AnnouncementPreviewTile({
-    required this.name,
-    required this.date,
-    required this.service,
-  });
-
-  final String name;
-  final String date;
-  final String service;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () => context.go('/announcements'),
-      borderRadius: BorderRadius.circular(8),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.05),
-                borderRadius: BorderRadius.circular(16),
+    return Semantics(
+      button: true,
+      label: label,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(color: const Color(0xFFECE8E8)),
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.035),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
               ),
-              alignment: Alignment.center,
-              child: Icon(AppIcons.flower, size: AppIcons.sizeMd, color: Colors.black87),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    name,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      height: 20 / 14,
-                      color: Colors.black,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  ),
-                  Text(
-                    date,
-                    style: TextStyle(
-                      fontSize: 12,
-                      height: 16 / 12,
-                      color: Colors.black.withOpacity(0.5),
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
-            Flexible(
-              child: Text(
-                service,
-                style: const TextStyle(
-                  fontSize: 14,
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 13,
+                  height: 20 / 13,
                   fontWeight: FontWeight.w500,
-                  height: 20 / 14,
-                  color: Colors.black,
+                  color: Colors.black.withValues(alpha: 0.48),
                 ),
-                textAlign: TextAlign.end,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
               ),
-            ),
-          ],
+              const SizedBox(height: 6),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w600,
+                  height: 28 / 22,
+                  color: Color(0xFF2A2A2A),
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                delta,
+                style: TextStyle(
+                  fontSize: 12,
+                  height: 16 / 12,
+                  fontWeight: FontWeight.w500,
+                  color: AppTheme.maroon.withValues(alpha: 0.72),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -534,8 +358,10 @@ class _QrAndEmergencyCard extends StatelessWidget {
 
         return Container(
           decoration: BoxDecoration(
-            border: Border.all(color: Colors.black.withOpacity(0.1)),
-            borderRadius: BorderRadius.circular(6),
+            color: Colors.white,
+            border: Border.all(color: AppTheme.hubCardBorderColor, width: 1),
+            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+            boxShadow: AppTheme.cardElevationShadow,
           ),
           clipBehavior: Clip.antiAlias,
           child: Column(
@@ -546,9 +372,9 @@ class _QrAndEmergencyCard extends StatelessWidget {
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
                   color: Colors.black.withOpacity(0.05),
-                  borderRadius: const BorderRadius.only(
-                    bottomRight: Radius.circular(6),
-                    topLeft: Radius.circular(6),
+                  borderRadius: BorderRadius.only(
+                    bottomRight: Radius.circular(AppTheme.radiusMd),
+                    topLeft: Radius.circular(AppTheme.radiusMd),
                   ),
                 ),
                 child: Text(
@@ -600,12 +426,12 @@ class _QrAndEmergencyCard extends StatelessWidget {
                     const SizedBox(height: 8),
                     InkWell(
                       onTap: () => _launchEmergencyCall(context),
-                      borderRadius: BorderRadius.circular(6),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black.withOpacity(0.1)),
-                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: AppTheme.hubCardBorderColor, width: 1),
+                          borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -622,7 +448,7 @@ class _QrAndEmergencyCard extends StatelessWidget {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              AppStrings.tr(context, 'alertPolice'),
+                              AppStrings.tr(context, 'callEmergencyHotline'),
                               style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
@@ -663,5 +489,116 @@ class _QrAndEmergencyCard extends StatelessWidget {
         );
       }
     }
+  }
+}
+
+/// Ministry of Awqaf work is handled in the dedicated Awqaf web dashboard, not in this app.
+class _AwqafDashboardNoticeCard extends StatelessWidget {
+  const _AwqafDashboardNoticeCard();
+
+  Future<void> _openAwqaf(BuildContext context) async {
+    final uri = Uri.parse(AppExternalUrls.awqafDashboard);
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppStrings.tr(context, 'couldNotOpenLink'))),
+        );
+      }
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppStrings.tr(context, 'couldNotOpenLink'))),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppTheme.maroon.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        border: Border.all(color: AppTheme.maroon.withValues(alpha: 0.22), width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            AppStrings.tr(context, 'awqafUseDashboardTitle'),
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.maroon,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            AppStrings.tr(context, 'awqafUseDashboardBody'),
+            style: TextStyle(
+              fontSize: 13,
+              height: 1.4,
+              color: Colors.black.withValues(alpha: 0.58),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: FilledButton(
+              onPressed: () => _openAwqaf(context),
+              style: FilledButton.styleFrom(
+                backgroundColor: AppTheme.maroon,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              child: Text(AppStrings.tr(context, 'openAwqafDashboard')),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MunicipalityCrewHomeCard extends StatelessWidget {
+  const _MunicipalityCrewHomeCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        border: Border.all(color: AppTheme.hubCardBorderColor, width: 1),
+        color: Colors.black.withOpacity(0.03),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            AppStrings.tr(context, 'roleMunicipalityCrew'),
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            AppStrings.tr(context, 'municipalityCrewHomeNote'),
+            style: TextStyle(fontSize: 12, height: 16 / 12, color: Colors.black.withOpacity(0.55)),
+          ),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: TextButton(
+              onPressed: () => context.push('/requests'),
+              child: Text(AppStrings.tr(context, 'navRequests')),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

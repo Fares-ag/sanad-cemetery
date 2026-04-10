@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_strings.dart';
 import '../providers/emergency_provider.dart';
+import '../providers/profile_preferences_provider.dart';
 import '../services/emergency_storage.dart';
 import '../theme/app_theme.dart';
 
@@ -17,6 +18,7 @@ class SettingsProfileScreen extends StatefulWidget {
 
 class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
   final _userNameController = TextEditingController();
+  final _birthYearController = TextEditingController();
   final _emergencyController = TextEditingController();
   final _newContactController = TextEditingController();
   bool _shareLocation = true;
@@ -30,7 +32,9 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
 
   void _loadFromProvider() {
     final info = context.read<EmergencyProvider>().info;
+    final birth = context.read<ProfilePreferencesProvider>().birthYear;
     _userNameController.text = info.userName ?? '';
+    if (birth != null) _birthYearController.text = '$birth';
     _shareLocation = info.shareLocation;
     setState(() {
       _contacts = info.contacts
@@ -42,6 +46,7 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
   @override
   void dispose() {
     _userNameController.dispose();
+    _birthYearController.dispose();
     _emergencyController.dispose();
     _newContactController.dispose();
     super.dispose();
@@ -105,6 +110,15 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _birthYearController,
+              keyboardType: TextInputType.number,
+              style: AppTheme.bodyMedium,
+              decoration: AppTheme.inputDecoration(
+                hintText: AppStrings.tr(context, 'birthYearOptional'),
+              ),
             ),
             const SizedBox(height: 28),
             Text(
@@ -251,7 +265,7 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: FilledButton(
-                    onPressed: () => _saveAndExit(context),
+                    onPressed: () async => _saveAndExit(context),
                     style: FilledButton.styleFrom(
                       backgroundColor: AppTheme.maroon,
                       foregroundColor: Colors.white,
@@ -269,7 +283,7 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
     );
   }
 
-  void _saveAndExit(BuildContext context) {
+  Future<void> _saveAndExit(BuildContext context) async {
     final contacts = _contacts
         .map((c) => EmergencyContact(
               name: c['name'] ?? '',
@@ -283,6 +297,8 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
       shareLocation: _shareLocation,
     );
     context.read<EmergencyProvider>().save(info);
-    context.push('/success?msg=changesSaved');
+    final y = int.tryParse(_birthYearController.text.trim());
+    await context.read<ProfilePreferencesProvider>().setBirthYear(y);
+    if (context.mounted) context.push('/success?msg=changesSaved');
   }
 }

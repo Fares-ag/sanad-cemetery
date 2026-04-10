@@ -15,12 +15,12 @@ class ScaffoldWithNav extends StatelessWidget {
   final Widget child;
   final GoRouterState state;
 
-  static const _paths = ['/', '/maintenance', '/announcements', '/settings'];
-  static const _labelKeys = ['home', 'report', 'announcements', 'settings'];
+  static const _paths = ['/', '/requests', '/location', '/settings'];
+  static const _labelKeys = ['home', 'navRequests', 'navLocation', 'settings'];
   static const _icons = [
     AppIcons.home,
     AppIcons.report,
-    AppIcons.campaign,
+    AppIcons.location,
     AppIcons.settings,
   ];
   static const _maroon = Color(0xFF8E1737);
@@ -32,6 +32,17 @@ class ScaffoldWithNav extends StatelessWidget {
     }
     if (path.startsWith('/grave') || path.startsWith('/navigate')) return 0;
     if (path.startsWith('/search')) return 0;
+    if (path.startsWith('/maintenance') ||
+        path.startsWith('/complaints') ||
+        path.startsWith('/religious-fines') ||
+        path.startsWith('/request-information')) {
+      return 1;
+    }
+    if (path.startsWith('/location-map') ||
+        path.startsWith('/request-grave-location') ||
+        path == '/announcements') {
+      return 2;
+    }
     return 0;
   }
 
@@ -47,7 +58,14 @@ class ScaffoldWithNav extends StatelessWidget {
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          border: Border(top: BorderSide(color: Colors.black.withOpacity(0.12), width: 1)),
+          border: Border(top: BorderSide(color: AppTheme.hubCardBorderColor, width: 1)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 8,
+              offset: const Offset(0, -1),
+            ),
+          ],
         ),
         child: SafeArea(
           top: false,

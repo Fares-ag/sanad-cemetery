@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../models/deceased.dart';
+import '../../theme/app_theme.dart';
 import '../state/admin_data_provider.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -45,45 +46,50 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final theme = Theme.of(context);
     final recentDeceased = data.deceased.take(5).toList();
 
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(24, 32, 24, 36),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  theme.colorScheme.primary.withValues(alpha: 0.08),
-                  theme.colorScheme.surface,
+    return ColoredBox(
+      color: AppTheme.appScaffoldBackground,
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    AppTheme.maroon.withValues(alpha: 0.07),
+                    AppTheme.appScaffoldBackground,
+                    Colors.white,
+                  ],
+                  stops: const [0.0, 0.45, 1.0],
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Dashboard',
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.6,
+                      height: 1.2,
+                      color: const Color(0xFF3A0B17),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Manage cemetery records, sections, and content.',
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: Colors.black.withValues(alpha: 0.58),
+                      height: 1.45,
+                    ),
+                  ),
                 ],
               ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Dashboard',
-                  style: theme.textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.8,
-                    height: 1.2,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Manage cemetery records, sections, and content.',
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                    height: 1.4,
-                  ),
-                ),
-              ],
-            ),
-          ),
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 4, 20, 32),
             child: Column(
@@ -98,6 +104,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         value: '${data.deceased.length}',
                         icon: Icons.person_rounded,
                         color: theme.colorScheme.primary,
+                        accent: true,
                         onTap: () => context.go('/deceased'),
                       ),
                     ),
@@ -124,7 +131,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ],
                 ),
                 const SizedBox(height: 24),
-                Card(
+                _DashPanel(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
                     child: Column(
@@ -134,6 +141,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           'Quick search',
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w600,
+                            color: const Color(0xFF3A0B17),
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -163,7 +171,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 if (recentDeceased.isNotEmpty) ...[
                   const SizedBox(height: 20),
-                  Card(
+                  _DashPanel(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
                       child: Column(
@@ -176,6 +184,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 'Recent deceased',
                                 style: theme.textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.w600,
+                                  color: const Color(0xFF3A0B17),
                                 ),
                               ),
                               TextButton(
@@ -201,7 +210,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ],
                 const SizedBox(height: 24),
-                Card(
+                _DashPanel(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 24),
                     child: Column(
@@ -211,6 +220,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           'Quick actions',
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w600,
+                            color: const Color(0xFF3A0B17),
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -249,6 +259,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ],
       ),
+      ),
+    );
+  }
+}
+
+/// White panel aligned with web `.panel` (border + soft shadow).
+class _DashPanel extends StatelessWidget {
+  const _DashPanel({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppTheme.hubCardBorderColor),
+        boxShadow: AppTheme.cardElevationShadow,
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: child,
     );
   }
 }
@@ -260,6 +292,7 @@ class _StatCard extends StatelessWidget {
     required this.icon,
     required this.color,
     required this.onTap,
+    this.accent = false,
   });
 
   final String title;
@@ -267,58 +300,85 @@ class _StatCard extends StatelessWidget {
   final IconData icon;
   final Color color;
   final VoidCallback onTap;
+  final bool accent;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Card(
-      clipBehavior: Clip.antiAlias,
+    return Material(
+      color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(14),
+        child: Ink(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            gradient: accent
+                ? const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color(0xFFFFFFFF),
+                      Color(0xFFFFF8FA),
+                      Color(0xFFFCEEF2),
+                    ],
+                    stops: [0.0, 0.5, 1.0],
+                  )
+                : null,
+            color: accent ? null : Colors.white,
+            border: Border.all(
+              color: accent
+                  ? AppTheme.maroon.withValues(alpha: 0.14)
+                  : AppTheme.hubCardBorderColor,
+            ),
+            boxShadow: AppTheme.cardElevationShadow,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(icon, size: 26, color: color),
                 ),
-                child: Icon(icon, size: 26, color: color),
-              ),
-              const SizedBox(width: 20),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      value,
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: -0.2,
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title.toUpperCase(),
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.6,
+                          color: Colors.black.withValues(alpha: 0.5),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      title,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                        height: 1.35,
+                      const SizedBox(height: 4),
+                      Text(
+                        value,
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.3,
+                          color: const Color(0xFF1C1C1C),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              Icon(
-                Icons.chevron_right_rounded,
-                size: 24,
-                color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
-              ),
-            ],
+                Icon(
+                  Icons.chevron_right_rounded,
+                  size: 24,
+                  color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.65),
+                ),
+              ],
+            ),
           ),
         ),
       ),

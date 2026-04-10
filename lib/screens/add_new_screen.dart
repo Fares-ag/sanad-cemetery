@@ -188,7 +188,7 @@ class _AddNewScreenState extends State<AddNewScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.radiusMd)),
                 ),
-                child: Text(AppStrings.tr(context, 'submitRequest'), style: AppTheme.button),
+                child: Text(AppStrings.tr(context, 'submitRecord'), style: AppTheme.button),
               ),
             ),
           ],

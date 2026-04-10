@@ -1,0 +1,165 @@
+import type { AuditEntry, AwqafCase, DeceasedRecord, MaintenanceTicket, MinistryStats } from '../types';
+
+const now = Date.now();
+
+export const SEED_TICKETS: MaintenanceTicket[] = [
+  {
+    id: 'T-1001',
+    category: 'Sunken grave',
+    description: 'Plot subsidence near Section A path',
+    descriptionAr: 'هبوط في التربة قرب ممر القطعة أ',
+    status: 'reported',
+    highPriorityAwqaf: false,
+    submittedByRole: 'visitor',
+    cemeteryName: 'Al Rayyan Cemetery',
+    cemeteryNameAr: 'مقبرة الريان',
+    graveId: 'grave-001',
+    createdAt: new Date(now - 86400000 * 2).toISOString(),
+  },
+  {
+    id: 'T-1002',
+    category: 'Damaged stone',
+    description: 'Headstone crack — priority from Awqaf channel',
+    descriptionAr: 'شق في الشاهد — أولوية من قناة الأوقاف',
+    status: 'in_progress',
+    highPriorityAwqaf: true,
+    submittedByRole: 'awqaf',
+    cemeteryName: 'Al Wakrah Cemetery',
+    cemeteryNameAr: 'مقبرة الوكرة',
+    createdAt: new Date(now - 86400000 * 5).toISOString(),
+    updatedAt: new Date(now - 86400000).toISOString(),
+  },
+  {
+    id: 'T-1003',
+    category: 'Overgrown grass',
+    description: 'Plot perimeter overgrown',
+    descriptionAr: 'نمو عشبي كثيف حول القبر',
+    status: 'resolved',
+    highPriorityAwqaf: false,
+    submittedByRole: 'municipality_crew',
+    cemeteryName: 'Al Rayyan Cemetery',
+    cemeteryNameAr: 'مقبرة الريان',
+    createdAt: new Date(now - 86400000 * 10).toISOString(),
+    updatedAt: new Date(now - 86400000 * 3).toISOString(),
+  },
+  {
+    id: 'T-1004',
+    category: 'Other',
+    description: 'Fence damage at north gate',
+    descriptionAr: 'تلف في السياج عند البوابة الشمالية',
+    status: 'reported',
+    highPriorityAwqaf: false,
+    submittedByRole: 'ministry_municipality',
+    cemeteryName: 'Doha Cemetery',
+    cemeteryNameAr: 'مقبرة الدوحة',
+    createdAt: new Date(now - 3600000 * 5).toISOString(),
+  },
+];
+
+export const SEED_AUDIT: AuditEntry[] = [
+  {
+    id: 'A-1',
+    timestamp: new Date(now - 86400000).toISOString(),
+    action: 'ticket_status',
+    actionAr: 'حالة_البلاغ',
+    detail: 'T-1002 → in_progress',
+    detailAr: 'T-1002 → قيد التنفيذ',
+    actor: 'admin@municipality.gov',
+    actorAr: 'مسؤول@بلدية.حكومة',
+  },
+  {
+    id: 'A-2',
+    timestamp: new Date(now - 86400000 * 2).toISOString(),
+    action: 'stats_sync',
+    actionAr: 'مزامنة_إحصاء',
+    detail: 'Ministry metrics refreshed (demo)',
+    detailAr: 'تحديث مؤشرات الوزارة (عرض تجريبي)',
+    actor: 'system',
+    actorAr: 'النظام',
+  },
+  {
+    id: 'A-3',
+    timestamp: new Date(now - 3600000 * 8).toISOString(),
+    action: 'complaint_submit',
+    actionAr: 'إرسال_شكوى',
+    detail: 'Noise complaint near Section C — routed Awqaf priority',
+    detailAr: 'شكوى ضوضاء قرب القطعة ج — توجيه بأولوية أوقاف',
+    actor: 'awqaf',
+    actorAr: 'أوقاف',
+  },
+];
+
+export const SEED_AWQAF_CASES: AwqafCase[] = [
+  {
+    id: 'AC-501',
+    kind: 'complaint',
+    summary: 'Visitor parking dispute — follow up with municipality liaison',
+    summaryAr: 'نزاع مواقف الزوار — متابعة مع البلدية',
+    status: 'in_review',
+    cemeteryHint: 'Al Rayyan Cemetery',
+    cemeteryHintAr: 'مقبرة الريان',
+    createdAt: new Date(now - 86400000 * 3).toISOString(),
+    updatedAt: new Date(now - 86400000).toISOString(),
+  },
+  {
+    id: 'AC-502',
+    kind: 'religious_fine',
+    summary: 'Reported breach of cemetery hours policy',
+    summaryAr: 'بلاغ بمخالفة ساعات عمل المقبرة',
+    status: 'open',
+    cemeteryHint: 'Al Wakrah Cemetery',
+    cemeteryHintAr: 'مقبرة الوكرة',
+    createdAt: new Date(now - 86400000 * 1).toISOString(),
+  },
+];
+
+export const SEED_STATS: MinistryStats = {
+  deceasedToday: 3,
+  deceasedThisMonth: 42,
+  monthlyTrend: [
+    { month: 'Oct', monthAr: 'أكتوبر', count: 28 },
+    { month: 'Nov', monthAr: 'نوفمبر', count: 35 },
+    { month: 'Dec', monthAr: 'ديسمبر', count: 31 },
+    { month: 'Jan', monthAr: 'يناير', count: 38 },
+    { month: 'Feb', monthAr: 'فبراير', count: 40 },
+    { month: 'Mar', monthAr: 'مارس', count: 42 },
+  ],
+  byCemetery: [
+    { name: 'Al Rayyan Cemetery', nameAr: 'مقبرة الريان', burials: 18 },
+    { name: 'Al Wakrah Cemetery', nameAr: 'مقبرة الوكرة', burials: 12 },
+    { name: 'Doha Cemetery', nameAr: 'مقبرة الدوحة', burials: 8 },
+    { name: 'Umm Salal', nameAr: 'أم صلال', burials: 4 },
+  ],
+};
+
+export const SEED_DECEASED: DeceasedRecord[] = [
+  {
+    id: 'grave-001',
+    fullName: 'John William Smith',
+    fullNameAr: 'جون ويليام سميث',
+    section: 'A',
+    plot: '12',
+    deathYear: 1901,
+    isVeteran: true,
+    branchOfService: 'Union Army',
+    branchOfServiceAr: 'جيش الاتحاد',
+  },
+  {
+    id: 'grave-002',
+    fullName: 'Mary Smith',
+    fullNameAr: 'ماري سميث',
+    section: 'A',
+    plot: '13',
+    deathYear: 1920,
+    isVeteran: false,
+  },
+  {
+    id: 'grave-003',
+    fullName: 'Ahmed Khan',
+    fullNameAr: 'أحمد خان',
+    section: 'B',
+    plot: '14',
+    deathYear: 2026,
+    isVeteran: false,
+  },
+];

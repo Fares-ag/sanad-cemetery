@@ -5,8 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:video_player/video_player.dart';
 import 'package:flutter_html/flutter_html.dart';
-import 'package:uuid/uuid.dart';
-import '../models/deceased.dart';
 import '../services/search_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/date_format.dart';
@@ -358,10 +356,6 @@ class DeceasedProfileScreen extends StatelessWidget {
                       )).toList(),
                     ),
                   ],
-                  const SizedBox(height: 24),
-                  _LeaveFlowerButton(deceased: d, searchService: service),
-                  const SizedBox(height: 12),
-                  _TributesList(tributes: d.tributes.where((t) => !t.isExpired).toList()),
                 ],
               ),
             ),
@@ -454,73 +448,6 @@ class _LegacyVideoState extends State<_LegacyVideo> {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _LeaveFlowerButton extends StatelessWidget {
-  final Deceased deceased;
-  final SearchService searchService;
-
-  const _LeaveFlowerButton({required this.deceased, required this.searchService});
-
-  @override
-  Widget build(BuildContext context) {
-    return FilledButton.icon(
-      style: FilledButton.styleFrom(
-        backgroundColor: DeceasedProfileScreen._maroon,
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-      onPressed: () {
-        final tribute = Tribute(id: const Uuid().v4(), placedAt: DateTime.now(), iconType: 'flower');
-        final updated = Deceased(
-          id: deceased.id,
-          firstName: deceased.firstName,
-          middleName: deceased.middleName,
-          lastName: deceased.lastName,
-          maidenName: deceased.maidenName,
-          birthDate: deceased.birthDate,
-          deathDate: deceased.deathDate,
-          isVeteran: deceased.isVeteran,
-          branchOfService: deceased.branchOfService,
-          lat: deceased.lat,
-          lon: deceased.lon,
-          sectionId: deceased.sectionId,
-          plotNumber: deceased.plotNumber,
-          bioHtml: deceased.bioHtml,
-          imageUrls: deceased.imageUrls,
-          legacyVideoUrl: deceased.legacyVideoUrl,
-          legacyVideoDurationSeconds: deceased.legacyVideoDurationSeconds,
-          familyLinks: deceased.familyLinks,
-          tributes: [...deceased.tributes, tribute],
-          qrCodeData: deceased.qrCodeData,
-        );
-        searchService.addOrUpdateRecord(updated);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppStrings.tr(context, 'flowerPlaced'))));
-      },
-      icon: const Icon(AppIcons.flower),
-      label: Text(AppStrings.tr(context, 'leaveFlower')),
-    );
-  }
-}
-
-class _TributesList extends StatelessWidget {
-  final List<Tribute> tributes;
-
-  const _TributesList({required this.tributes});
-
-  @override
-  Widget build(BuildContext context) {
-    if (tributes.isEmpty) return const SizedBox.shrink();
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: tributes.map((t) => Chip(
-        avatar: const Icon(AppIcons.flower, color: Colors.pink, size: AppIcons.sizeMd),
-        label: Text(t.senderName ?? AppStrings.tr(context, 'someone')),
-      )).toList(),
     );
   }
 }

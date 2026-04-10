@@ -11,6 +11,9 @@ class MaintenanceTicket {
   final DateTime createdAt;
   final DateTime? updatedAt;
   final String? reportedByUserId;
+  /// Ministry of Awqaf / high-priority channel (demo flag for future SLA).
+  final bool highPriorityFromAwqaf;
+  final String? submittedByRole;
 
   const MaintenanceTicket({
     required this.id,
@@ -24,6 +27,8 @@ class MaintenanceTicket {
     required this.createdAt,
     this.updatedAt,
     this.reportedByUserId,
+    this.highPriorityFromAwqaf = false,
+    this.submittedByRole,
   });
 
   factory MaintenanceTicket.fromJson(Map<String, dynamic> json) {
@@ -39,6 +44,8 @@ class MaintenanceTicket {
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt'] as String) : null,
       reportedByUserId: json['reportedByUserId'] as String?,
+      highPriorityFromAwqaf: json['highPriorityFromAwqaf'] as bool? ?? false,
+      submittedByRole: json['submittedByRole'] as String?,
     );
   }
 
@@ -55,6 +62,8 @@ class MaintenanceTicket {
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
       'reportedByUserId': reportedByUserId,
+      'highPriorityFromAwqaf': highPriorityFromAwqaf,
+      'submittedByRole': submittedByRole,
     };
   }
 }

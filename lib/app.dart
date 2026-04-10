@@ -5,6 +5,10 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'providers/locale_provider.dart';
 import 'providers/emergency_provider.dart';
+import 'providers/accessibility_provider.dart';
+import 'providers/user_role_provider.dart';
+import 'providers/profile_preferences_provider.dart';
+import 'providers/app_content_provider.dart';
 import 'services/search_service.dart';
 import 'services/navigation_service.dart';
 import 'services/maintenance_service.dart';
@@ -23,6 +27,16 @@ import 'screens/welcome_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/add_new_screen.dart';
 import 'screens/scaffold_with_nav.dart';
+import 'screens/requests_hub_screen.dart';
+import 'screens/location_hub_screen.dart';
+import 'screens/simple_form_routes.dart';
+import 'screens/ministry_news_screen.dart';
+import 'screens/ministry_governance_screen.dart';
+import 'screens/metrics_detail_screen.dart';
+import 'screens/first_responder_screen.dart';
+import 'screens/tutorials_screen.dart';
+import 'screens/location_map_screen.dart';
+import 'screens/accessibility_settings_screen.dart';
 import 'theme/app_theme.dart';
 import 'welcome_state.dart';
 
@@ -104,13 +118,57 @@ class SanadCemeteryApp extends StatelessWidget {
         ChangeNotifierProvider<EmergencyProvider>(
           create: (_) => EmergencyProvider()..load(),
         ),
+        ChangeNotifierProvider<AccessibilityProvider>(
+          create: (_) => AccessibilityProvider(),
+        ),
+        ChangeNotifierProvider<UserRoleProvider>(
+          create: (_) => UserRoleProvider(),
+        ),
+        ChangeNotifierProvider<ProfilePreferencesProvider>(
+          create: (_) => ProfilePreferencesProvider(),
+        ),
+        ChangeNotifierProvider<AppContentProvider>(
+          create: (_) {
+            final p = AppContentProvider();
+            p.refresh();
+            return p;
+          },
+        ),
       ],
       child: Consumer<LocaleProvider>(
         builder: (context, localeProvider, _) => MaterialApp.router(
         title: 'Sanad Cemetery',
         debugShowCheckedModeBanner: false,
         locale: localeProvider.locale,
-        supportedLocales: const [Locale('en'), Locale('ar')],
+        supportedLocales: const [
+          Locale('en'),
+          Locale('ar'),
+          Locale('hi'),
+          Locale('ur'),
+          Locale('ml'),
+        ],
+        builder: (context, child) {
+          final a11y = Provider.of<AccessibilityProvider>(context, listen: true);
+          final theme = Theme.of(context);
+          return Theme(
+            data: theme.copyWith(
+              visualDensity: a11y.simplifiedLayout ? VisualDensity.comfortable : theme.visualDensity,
+              materialTapTargetSize:
+                  a11y.simplifiedLayout ? MaterialTapTargetSize.padded : MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                textScaler: TextScaler.linear(a11y.textScale),
+              ),
+              child: DefaultTextStyle.merge(
+                style: TextStyle(
+                  fontWeight: a11y.boldLabels ? FontWeight.w600 : FontWeight.w400,
+                ),
+                child: child ?? const SizedBox.shrink(),
+              ),
+            ),
+          );
+        },
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -118,7 +176,18 @@ class SanadCemeteryApp extends StatelessWidget {
         ],
         theme: ThemeData(
           useMaterial3: true,
-          scaffoldBackgroundColor: Colors.white,
+          // Horizontal slide (iOS-style) instead of Android’s zoom / upward transition that feels like a modal “pop”.
+          pageTransitionsTheme: const PageTransitionsTheme(
+            builders: <TargetPlatform, PageTransitionsBuilder>{
+              TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+              TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+              TargetPlatform.linux: CupertinoPageTransitionsBuilder(),
+              TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+              TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
+              TargetPlatform.fuchsia: CupertinoPageTransitionsBuilder(),
+            },
+          ),
+          scaffoldBackgroundColor: AppTheme.appScaffoldBackground,
           colorScheme: ColorScheme.fromSeed(
             seedColor: AppTheme.maroon,
             brightness: Brightness.light,
@@ -141,10 +210,10 @@ class SanadCemeteryApp extends StatelessWidget {
             color: Colors.white,
             surfaceTintColor: Colors.transparent,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-              side: BorderSide(color: Colors.black.withOpacity(0.1)),
+              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+              side: const BorderSide(color: AppTheme.hubCardBorderColor, width: 1),
             ),
-            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             clipBehavior: Clip.antiAlias,
           ),
           inputDecorationTheme: InputDecorationTheme(
@@ -153,7 +222,7 @@ class SanadCemeteryApp extends StatelessWidget {
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppTheme.radiusSm)),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-              borderSide: BorderSide(color: Colors.black.withOpacity(0.1)),
+              borderSide: const BorderSide(color: AppTheme.hubCardBorderColor, width: 1),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppTheme.radiusSm),
@@ -181,6 +250,16 @@ class SanadCemeteryApp extends StatelessWidget {
         ),
         darkTheme: ThemeData(
           useMaterial3: true,
+          pageTransitionsTheme: const PageTransitionsTheme(
+            builders: <TargetPlatform, PageTransitionsBuilder>{
+              TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+              TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+              TargetPlatform.linux: CupertinoPageTransitionsBuilder(),
+              TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+              TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
+              TargetPlatform.fuchsia: CupertinoPageTransitionsBuilder(),
+            },
+          ),
           colorScheme: ColorScheme.fromSeed(
             seedColor: const Color(0xFF8E1737),
             brightness: Brightness.dark,
@@ -261,8 +340,24 @@ final _router = GoRouter(
             forReport: state.uri.queryParameters['forReport'] == '1',
           ),
         ),
+        GoRoute(path: '/requests', builder: (_, __) => const RequestsHubScreen()),
+        GoRoute(path: '/location', builder: (_, __) => const LocationHubScreen()),
         GoRoute(path: '/maintenance', builder: (_, __) => const ReportIssueScreen()),
         GoRoute(path: '/announcements', builder: (_, __) => const AnnouncementsScreen()),
+        GoRoute(path: '/ministry-news', builder: (_, __) => const MinistryNewsScreen()),
+        GoRoute(path: '/ministry-governance', builder: (_, __) => const MinistryGovernanceScreen()),
+        GoRoute(
+          path: '/metrics-detail/:type',
+          builder: (_, state) => MetricsDetailScreen(type: state.pathParameters['type']!),
+        ),
+        GoRoute(path: '/first-responder', builder: (_, __) => const FirstResponderScreen()),
+        GoRoute(path: '/tutorials', builder: (_, __) => const TutorialsScreen()),
+        GoRoute(path: '/complaints', builder: (_, __) => const ComplaintsScreen()),
+        GoRoute(path: '/religious-fines', builder: (_, __) => const ReligiousFinesScreen()),
+        GoRoute(path: '/request-information', builder: (_, __) => const RequestInformationScreen()),
+        GoRoute(path: '/request-grave-location', builder: (_, __) => const RequestGraveLocationScreen()),
+        GoRoute(path: '/location-map', builder: (_, __) => const LocationMapScreen()),
+        GoRoute(path: '/accessibility-settings', builder: (_, __) => const AccessibilitySettingsScreen()),
         GoRoute(path: '/settings', builder: (_, __) => const SettingsScreenVisitor()),
         GoRoute(path: '/settings/profile', builder: (_, __) => const SettingsProfileScreen()),
         GoRoute(

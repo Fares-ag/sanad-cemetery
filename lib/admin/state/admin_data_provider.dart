@@ -205,6 +205,8 @@ class AdminDataProvider extends ChangeNotifier {
       createdAt: _tickets[i].createdAt,
       updatedAt: DateTime.now(),
       reportedByUserId: _tickets[i].reportedByUserId,
+      highPriorityFromAwqaf: _tickets[i].highPriorityFromAwqaf,
+      submittedByRole: _tickets[i].submittedByRole,
     );
     await _persist();
     notifyListeners();
